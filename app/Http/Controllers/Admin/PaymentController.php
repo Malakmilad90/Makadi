@@ -157,7 +157,7 @@ class PaymentController extends Controller
         if(count($payments)>0)
         return view('admins.payments.index',compact('payments'))->withDetails($payments)->withQuery($search);
         }
-        return view('admins.payments.index',compact('payments'))->withMessage('no details found');
+        return view('admins.payments.index',compact('payments'))->with('success','no details found');
         // $payments=Payment::where('first_name','LIKE','%'.$search.'%')->paginate(5);
         // return view('admins.payments.index',compact('payments'));
     }
