@@ -20,6 +20,7 @@
                 <th style="width: 10px">id</th>
                 <th>Question</th>
                 <th>Answer</th>
+                <th>img</th>
                 <th></th>
               </tr>
             </thead>
@@ -29,6 +30,7 @@
                 <td>{{ $faq->id }}</td>
                 <td>{{ $faq->question }}</td>
                 <td>{{ $faq->answer }}</td>
+                <td><img width="100px" src="{{asset('upload/'.$faq->img)}}"></td>
                 <td>
                     <form action="{{ route('faqs.destroy',$faq->id) }}" method="POST">
                         <a class="" href="{{ route('faqs.show',$faq->id) }}"><img src="{{ asset('icons/5618479.png') }}" width="25px" alt=""></a>

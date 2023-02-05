@@ -41,7 +41,19 @@ class FaqsController extends Controller
             'question'=>'required',
             'answer'=>'required'
         ]);
-        $faqs=Faq::create($request->all());
+        $faqs=Faq::create([
+            'question'=>$request->question,
+            'answer'=>$request->answer
+        ]);
+        if ($request->file('img')) {
+            $request->validate([
+                'img' => 'image|mimes:png,jpg,jpeg,svg'
+            ]);
+            $posterName = $request->file('img')->getClientOriginalName();
+            $request->img->move(Faq::POSTER_PATH, $posterName);
+            $faqs->img = $posterName;
+            $faqs->save();
+        }
         return redirect()->route('faqs.index',$faqs)->with('success','Faqs created successfully.');
         // return view('admins.faqs.index',compact('faqs'))->with('success','faqs created successfully');
     }
