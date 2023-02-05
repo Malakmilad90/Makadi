@@ -23,8 +23,8 @@ class FaqsResource extends JsonResource
          if ($this->img) {
              $imgPath = Faq::POSTER_PATH . '/' . $this->img;
              $img = Image::make($imgPath);
-             $img->blur(30);
-             $img->save($imgPath);
+            //  $img->blur(30);
+             $img->save();
              $encodedImg = $img->encode('jpg');
              if ($encodedImg) {
                  $blurhash = base64_encode($encodedImg);
