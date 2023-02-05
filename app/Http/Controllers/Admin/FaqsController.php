@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Admin\Faq;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
-
+use Konnco\ImageCast\Casts\Image as Blur;
 class FaqsController extends Controller
 {
     /**
@@ -37,33 +37,47 @@ class FaqsController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        request()->validate([
-            'question'=>'required',
-            'answer'=>'required'
+{
+    request()->validate([
+        'question'=>'required',
+        'answer'=>'required'
+    ]);
+    $faqs=Faq::create([
+        'question'=>$request->question,
+        'answer'=>$request->answer
+    ]);
+    if ($request->file('img')) {
+        $request->validate([
+            'img' => 'image|mimes:png,jpg,jpeg,svg'
         ]);
-        $faqs=Faq::create([
-            'question'=>$request->question,
-            'answer'=>$request->answer
-        ]);
-        if ($request->file('img')) {
-            $request->validate([
-                'img' => 'image|mimes:png,jpg,jpeg,svg'
-            ]);
-            $posterName = $request->file('img')->getClientOriginalName();
-            $request->img->move(Faq::POSTER_PATH, $posterName);
-            $faqs->img = $posterName;
-            $faqs->save();
+        $posterName = $request->file('img')->getClientOriginalName();
+        $request->img->move(Faq::POSTER_PATH, $posterName);
+        $faqs->img = $posterName;
+        $faqs->save();
 
-             // Generate blurred version of image
-            $img = Image::make(Faq::POSTER_PATH . '/' . $posterName);
-            $img->blur(30);
-            $blurredName = 'blurred_' . $posterName;
-            $img->save(Faq::POSTER_PATH . '/blurred' . $blurredName);
+        // Generate blurred version of image
+        $img = Image::make(Faq::POSTER_PATH . '/' . $posterName);
+        $img->blur(30);
+        $blurredName = 'blurred_' . $posterName;
+        $img->save(Faq::POSTER_PATH . '/blurred' . $blurredName);
+
+        $encoded_image = $img->encode('jpg');
+        if ($encoded_image === false) {
+            \Log::error("Error encoding blurred image");
+            return redirect()->route('faqs.index', $faqs)->with('error', 'Error encoding blurred image');
         }
-        return redirect()->route('faqs.index',$faqs)->with('success','Faqs created successfully.');
-        // return view('admins.faqs.index',compact('faqs'))->with('success','faqs created successfully');
+
+        $blurhash = base64_encode($encoded_image);
+        if ($blurhash === false) {
+            \Log::error("Error encoding blurhash");
+            return redirect()->route('faqs.index', $faqs)->with('error', 'Error encoding blurhash');
+        }
+
+        $faqs->blurhash = $blurhash;
     }
+    return redirect()->route('faqs.index',$faqs)->with('success','Faqs created successfully.');
+}
+
 
     /**
      * Display the specified resource.
