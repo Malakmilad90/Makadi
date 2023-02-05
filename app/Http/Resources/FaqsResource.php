@@ -18,8 +18,13 @@ class FaqsResource extends JsonResource
 
     public function toArray($request)
     {
-        $file  = 'upload/D-bay-newmobile.jpg';
-        BlurHash::encode($file);
+        return [
+            'id'=>$this->id,
+            'question'=>$this->question,
+            'answer'=>$this->answer,
+            'img'=>asset('upload/'.$this->img),
+            'blurred_img'=>asset('upload/blurredblurred_'.$this->img),
+        ];
     }
 }
 

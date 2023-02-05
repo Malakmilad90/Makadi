@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Faq;
 use Illuminate\Http\Request;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class FaqsController extends Controller
 {
@@ -53,6 +54,12 @@ class FaqsController extends Controller
             $request->img->move(Faq::POSTER_PATH, $posterName);
             $faqs->img = $posterName;
             $faqs->save();
+
+             // Generate blurred version of image
+            $img = Image::make(Faq::POSTER_PATH . '/' . $posterName);
+            $img->blur(30);
+            $blurredName = 'blurred_' . $posterName;
+            $img->save(Faq::POSTER_PATH . '/blurred' . $blurredName);
         }
         return redirect()->route('faqs.index',$faqs)->with('success','Faqs created successfully.');
         // return view('admins.faqs.index',compact('faqs'))->with('success','faqs created successfully');
